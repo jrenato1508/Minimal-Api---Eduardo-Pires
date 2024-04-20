@@ -1,0 +1,20 @@
+# Por que o Microsoft Introduziu o conceito de Minimal  API's? #
+  - Porque a microsoft é uma empresa que acada ano e acada versão ela tenta mudar melhorar, nesse caso as API's ainda são utilizadas porém ela lançou um conceito a mais que são as   Minimal  API's
+  
+# Por que a Microsoft fez isso ? #
+   - Para ganho de performace. Comparando com o .Net com o Nodes.js o .Net da uma surra  no nodes por varios conceitos, arquiteturas diferentes etc... O Web APi's nasceu dentro do MVC
+	 então com intuito de não carregar o "mundo" ou as tranqueiras, isso é, varias coisas que a web api não irá usar como por exemplos dlls que tinha código de windows e outros... A Microsoft resolveu dar essa enxugada. Porque em termos de warm up. O .NET perde para o Nodes.js mesmo o .Net sendo mais rapido. é como comparar dois carros o primeiro sendo uma ferrari e o segundo um carro um pouco infeiror, na largada a ferrari sai atrás(warm up) do carro inferior, mas durante a corrida a ferrari ultrapassa e ganha com maior velocidade.
+	 Mas nessa arracanda podemos assim dizer, a ferrari perde.
+   
+   
+# Por que isso é bom? #
+
+Aplicações que utilizam o conceito de functions(no azure) ou lambdas(AWS - mesma coisa que functions) que são o conceito de serverless. Quando uma functions é chamada ela deve ser executada rapidamente, quanto mais rapido ela for executada melhor, porém para economia de recursos no azure ou AWS a functions quando não é usada por um determinado tempo ela acaba dormindo, e quando essa functions que está dormindo é solicitada ela precisa precisa acordar e nesse momento acontece o warm up(esquentar, ficar no ponto para rodar) e é nesse ponto que o .net perde para o nodes.js por exemplo por ter um warm up mais demorado do que o nodes.js para resolver esse problema a microsoft critou a minimal APi
+
+# Quando ou porque devemos usar? #
+
+- Devemos usar a Minimal API's principalmente quando tivermos cenários em que estivermos usando serviços do tipo Lambda(AWS) e functions(Azure) porque o 
+
+
+& Criando uma minimal Api &
+Visual Studio => New Project => Asp.Net Core Web APi => Use Controllers(desmarcar essa opção)
