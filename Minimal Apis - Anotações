@@ -18,3 +18,27 @@ Aplicações que utilizam o conceito de functions(no azure) ou lambdas(AWS - mes
 
 & Criando uma minimal Api &
 Visual Studio => New Project => Asp.Net Core Web APi => Use Controllers(desmarcar essa opção)
+
+OBS: Como se trata de uma minimal Api, devemos envitar ficar criando camadas e camadas como por exemplo camadas de acesso a dados, camada de Negocios e etc... é uma API Minimal, enxuto, então tudo acaba sendo implementado no mesmo projeto.
+
+# Mão na massa #
+
+1 - vamos contruir um crud de uma entidade. O primeiro passo é criar uma pasta chamada models e dentro dela adicionar uma entidade(class) com o nome fornecedores
+2 - Vamos instalar o Microsoft.EntityFrameworkCore.SqlServer e Microsoft.EntityFrameworkCore.Tools para configuramos o nosso Dbcontext. 
+	OBS: Instalar a mesma mersão do .Net utilizado na aplicação
+2.1 - Criamos uma pasta com o Nome Data para adicionar o nosso Dbcontext que terá o nome MinimalContextDb, dentro dela, também faremos o nosso mapeamento da entidade fornecedor com o bando de dados. Como se trata de uma minimal Api, devemos envitar ficar criando camadas e camadas como por exemplo camadas de acesso a dados, camada de Negocios e etc... é uma API Minimal, enxuto, então tudo acaba sendo implementado no mesmo projeto.
+
+2.2 - Vamos adicionar a nossa connectionStrings no appsettings.json
+
+2.3 - Na class program.cs vamos adicionar o o contexto
+		ex: builder.Services.AddDbContext<MinimalContextDb>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+	
+2.4 - agora vamos rodar o comando para criar as migrations do nosso banco de dados e tabelas configuradas.
+		ex: Add-migration initial
+
+2.5 - Migration criadas, agora vamos rodar o comando para adicionar e criar o banco de dados através das migrations geradas
+		ex: update-database
+
+3- Agora vamos mapear os metodos para expor os dados da nossa Api
+3.1 - O Mapeamentodos metodos serão dentro da program.cs Consultar projeto para melhor entendimento.
