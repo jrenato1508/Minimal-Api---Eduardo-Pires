@@ -1,3 +1,5 @@
+Link da Aula: https://www.youtube.com/watch?v=aXayqUfSNvw
+
 # Por que o Microsoft Introduziu o conceito de Minimal  API's? #
   - Porque a microsoft é uma empresa que acada ano e acada versão ela tenta mudar melhorar, nesse caso as API's ainda são utilizadas porém ela lançou um conceito a mais que são as   Minimal  API's
   
@@ -42,3 +44,78 @@ OBS: Como se trata de uma minimal Api, devemos envitar ficar criando camadas e c
 
 3- Agora vamos mapear os metodos para expor os dados da nossa Api
 3.1 - O Mapeamentodos metodos serão dentro da program.cs Consultar projeto para melhor entendimento.
+
+3.2 - Instalamos o pacote Minivalidation feito por Damian Edwards para validar a models para ser inserida no banco de dados
+
+3.3 - Teste do CRUD Finalizado
+
+4- Agora vamos implementar a aunteticação de usuário com Identity com JWT Token
+4.1 - Instalar NetDevPack.Identity (remomendação de instalar na versão 6.0.5 porque na última versão acaba gerando erro.)
+4.2 - Adicionar o serviço no projeto na class program.cs
+	ex:	builder.Services.AddIdentityEntityFrameworkContextConfiguration(options =>
+		options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+		b => b.MigrationsAssembly("DemoMinimalAPI")));
+		
+		e também o builder.Services.AddIdentityConfiguration();
+
+4.3 - Adicionando o serviço na pipeline
+4.4 - Adicionar no appsettings.json a nossa informações como chaves, espiração do token, issuer e audience
+		ex:
+			"AppSettings": {
+			"SecretKey": "MYSECRETSUPERSECRET",
+			"Expiration": 2,
+			"Issuer": "MinimalPilot",
+			"Audience": "https://localhost"
+			}
+4.5 - adicinar na class program logo abaixo do AddIdentityConfiguration() o builder.Services.AddJwtConfiguration(builder.Configuration, "AppSettings"); que é a chamada para o appsettings onde contém as informações do JWT
+
+4.6- agora precisamos gerar as migrations e  adicionar as tabelas do Identity em nosso banco de dados. Com o identity configurado(os comando feitos acima) basta abrir o package Manager Console e escrever o seguinte comando Add-Migration AuthInitial(nome da migration) - Context(informando o contexto) NetDevPackAppDbContext(Nome do contexto que já está configurado no pacote  NetDevPack que instalamos. (Não fiz porque já estava usando um banco que já possuia todas as tabelas necessárias) e em seguida Adicionar as tabelas.
+	ex:Add-Migration AuthInitial - Context NetDevPackAppDbContext, Add-Migration AuthInitial -Context NetDevPackAppDbContext
+
+5- Agora vamos configurar as nossas Action de Registe e Login para o usuário poder criar um usuário e se autenticar na class program.cs
+5.1- Feita a configuração das actions é só testar
+
+6- Agora vamos decorar as actions de registe e login com [AllowAnonymous] para que elas fiquem abertas para qualquer usuário e decorar com [Authorize] as demais actions para que seja exigido a autenticação do usuário para acessar a action
+
+6.1 - Se testarmos agora pelo Swagger, ao tentar consumir qualquer Endpoint receberemos um Status Code 401 Unauthorized que siguinifica dizer que não temos autorização para acessar, no entando se usarmos o Postman podemos consumir as informações dos Endpoint ao passar o token gerado ao se autenticar.
+
+7 - Agora vamos trabalhar com validação de acesso com base em Claims, para isso precisaremos trabalhar com policy, coisa que sempre existiu no .Net
+7.1 - Agora vamos criar uma Policy, para isso, primeiro precisamos configurar em nossa class program.cs logo a baixo do AddJwtConfiguration o seguinte código. É assimq que dizemos
+	  que vamos criar uma validação com claims.
+	ex:
+		builder.Services.AddAuthorization(options =>
+		{
+			options.AddPolicy("ExcluirFornecedor",
+				policy => policy.RequireClaim("ExcluirFornecedor"));
+		});
+
+7.2 - Agora para configurar a action/ Endpoint para exigir que além autenticação o usuário precisa ter determinada claim, adicionamos essa exigencia no metadado com a seguinte	informação .RequireAuthorization("ExcluirFornecedor") Vamos adicionar essa informação na action Map.Delete
+	ex:
+			.Produces(StatusCodes.Status400BadRequest)
+			.Produces(StatusCodes.Status204NoContent)
+			.Produces(StatusCodes.Status404NotFound)
+			.RequireAuthorization("ExcluirFornecedor")
+			.WithName("DeleteFornecedor")
+			.WithTags("Fornecedor");
+
+7.3- Agora vamos atribuir essa claim ao usuário que criamos, para isso basta pegar o Guid do usuário na tabela AspNetUsers e adicionar uma claim na tabela AspNetUserClaims com o claimType e ClaimValue como ExcluirFornecedor. O claim value não precisa mas vamos preencher de qualquer forma. Feito isso, podemos testar se o token que é gerado ao realizar o login contem as claim que adicionamos ao usuário, parra isso basta pegar o token e jogar no site jwt pra analisarmos.
+
+8 - Agora vamos configurar o Swagger para ele aceitar jwt token para o usuário poder acessar as action/Endpoint
+8.1 - a configuração do Swagger saiu de builder.Services.AddSwaggerGen() para outra implementação na class program.cs, consultar projeto para melhor entendimento
+
+9- Organização da Minimal API. Podemos organizar melhor a minimal api como por exemplo criar uma class para mapear nossos Endpoint. Podemos criar metodos separados para fornecedores   e autenticação de usuário em duas class diferentes para separar as responsabilidades, porém que essa não é a ideia do Minimal Api, podemos fazer ? Sim, mas foge do contexto de   minimal api. Se você reparar na class Program.cs ela é nosso API inteira.
+
+Sugestão para Organização:
+1- Uso de Regions.
+	ex: Configure Services, Configure Pipeline, Actions
+
+2- Criar um metodo void MapActions(WebApplication app) e passar para dentro dele todas as nossas action e depois adicionar esse metodo no pipeline.
+
+	ex: Metodo Void
+		void MapActions(WebApplication app){Todas as actions}
+	
+	ex: Referenciar no pipiline
+	
+		app.UseHttpsRedirection();
+		MapActions(app);
+		app.Run();
